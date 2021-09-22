@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{%block content%}
+{% if user.is_authenticated %}
+    Logged in as {{ user.username }}<br><a href="/logout">Logout</a>
+    <br><br>
+    <a href={% url 'upload' %}><h4>Upload a new picture</h4></a>
+    <h1>Gallery</h1>
+    -here be thumbnails-<br>
+    {% if images %}
+        {% for image in images %}
+            <a href="{% url 'show_image' image.id %}"><img src="{{ image.img_thumb.url}}"></a> <br>
+        {% endfor %}
+    {% else %}
+        <h4>No pictures</h4>
+    {% endif %}
+
+
+
+{% else %}
+    <a href="{% url 'login' %}">Log in</a> 
+    <br>or<br> 
+    <a href="{% url 'signup' %}">Sign up for an account</a>
+{% endif %}
+
+{%endblock%}
+</html>

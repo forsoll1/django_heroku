@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% if auth %}
+        <p>Here's the picture you wanted: </p><br><br>
+
+        <img src="{{image.img_s.url}}"><br>
+        <p>image description: {{ image.description }}</p>
+        <p>Uploaded: {{ image.pub_date }}</p>
+        <a href="{% url 'delete' image.id %}">Delete image</a>
+
+    {% else %}
+        <p>You need to be logged in to view this content.</p>
+    {% endif %}
+{% endblock %}
