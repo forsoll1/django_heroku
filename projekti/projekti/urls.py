@@ -34,6 +34,8 @@ urlpatterns = [
     path('gallery/<int:image_id>/delete', views.delete, name="delete"), 
     
     path('', views.home, name="home"),
+    path('settings/', views.user_settings, name="settings"),
+    path('sort', views.sort_order, name="sort_order"),
 ]
 if settings.DEBUG:
         urlpatterns += static(settings.MEDIA_URL,

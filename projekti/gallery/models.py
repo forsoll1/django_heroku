@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 import os
-from django.core.validators import FileExtensionValidator
-from django.forms import Form
 from random import randint
 
 def user_directory_path(instance, filename):
@@ -22,4 +20,5 @@ class Image(models.Model):
     img_m = models.ImageField(upload_to = 'media/', blank=True)
     img_l = models.ImageField(upload_to = 'media/', blank=True)
     pub_date = models.DateTimeField(auto_now=False, auto_now_add=False, blank=True)
+    order_num = models.IntegerField(blank=True)
 

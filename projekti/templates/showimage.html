@@ -3,12 +3,43 @@
 {% block content %}
 
     {% if auth %}
-        <p>Here's the picture you wanted: </p><br><br>
+        <div class="jumbotron text-center">
+            <div class="d-flex justify-content-center">
+                <img class="d-block " srcset="{{image.img_s.url}} 320w, {{image.img_m.url}} 640w, {{image.img_l.url}} 1024w"
+                sizes=" (min-width: 1400px) 1024px,
+                (max-width: 900px) 320px, 640px, "
+                src ="{{image.img_s.url}}" alt="Image slide">
+            </div><br>
+            <p class="lead">{{ image.description }}</p><br>
+            <p class="lead">Uploaded: {{ image.pub_date }}</p>
 
-        <img src="{{image.img_s.url}}"><br>
-        <p>image description: {{ image.description }}</p>
-        <p>Uploaded: {{ image.pub_date }}</p>
-        <a href="{% url 'delete' image.id %}">Delete image</a>
+            
+            {% if next and previous %}
+
+              <div class="row">
+                <div class="col">
+                    <a class="btn btn-secondary btn-lg btn-block" href="{% url 'show_image' previous.id %}">Previous</a>
+                </div>
+                <div class="col">
+                    <a class="btn btn-secondary btn-lg btn-block" href="{% url 'show_image' next.id %}">Next</a>
+                </div>
+            </div>   
+            {%endif%}
+            <hr class="my-4">
+            <a class="btn btn-outline-secondary btn-lg" href="{% url 'home' %}" role="button">Main gallery</a>
+            <br><br>
+            <a class="btn btn-secondary text-center" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                Delete Image
+            </a>
+                
+            <div class="collapse" id="collapseExample">
+            <br>
+                    <div class="alert alert-danger" role="alert">
+                        Are you sure you want to delete this image? All data will be lost. 
+                        <a class="btn btn-danger" href="{% url 'delete' image.id %}">Delete anyway</a>
+                    </div>
+                </div>
+            </div>
 
     {% else %}
         <p>You need to be logged in to view this content.</p>

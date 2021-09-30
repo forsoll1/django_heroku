@@ -1,26 +1,125 @@
+<!--
+    SETTINGS-PAGE? 
+    -slideshow at start?
+    -visible to other users?
+    -delete user
+-->
+
+
 {% extends 'base.html' %}
-{%block content%}
+{% block head %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+    <style>
+        #carouselExampleControls{
+            display:none;
+        }
+    </style>
+
+    <script>
+      $(document).ready(function() {
+
+        var show_slideshow = "{{ show_slideshow }}"
+
+        if (show_slideshow === "True"){
+            $('#carouselExampleControls').show()
+        }
+
+        $( "#sortable" ).sortable({
+            update: function(event, ui) {
+                var sort = []
+                window.CSRF_TOKEN = "{{ csrf_token }}"
+                $("#sortable").children().each(function(){
+                    sort.push({'id':$(this).data('id'),'order':$(this).index()})
+                });
+
+                $.ajax({
+                    url: "{% url "sort_order" %}",
+                    type: "post",
+                    datatype:'json',
+                    data:{'sort':JSON.stringify(sort),
+                    'csrfmiddlewaretoken': window.CSRF_TOKEN
+                    },
+                });
+          },
+        }).disableSelection();
+
+        function runEffect() {
+            var selectedEffect = "fade";
+            $( "#carouselExampleControls" ).toggle( selectedEffect, 1 );
+            };
+
+
+
+        $( "#toggler" ).on( "click", function() {
+            runEffect();
+        });
+      } );
+
+    </script>
+{% endblock %}
+
 {% if user.is_authenticated %}
-    Logged in as {{ user.username }}<br><a href="/logout">Logout</a>
-    <br><br>
-    <a href={% url 'upload' %}><h4>Upload a new picture</h4></a>
-    <h1>Gallery</h1>
-    -here be thumbnails-<br>
-    {% if images %}
-        {% for image in images %}
-            <a href="{% url 'show_image' image.id %}"><img src="{{ image.img_thumb.url}}"></a> <br>
-        {% endfor %}
-    {% else %}
-        <h4>No pictures</h4>
-    {% endif %}
+    {%block content%}
+        {% if not images %}
+            <div class="jumbotron">
+                <div class="container-fluid">
+                    <h1 class="display-4 text-center">Your gallery is empty!</h1>
+                    <p class="lead text-center">Go ahead and upload a few pictures.</p>
+                    <hr class="my-4">
+                    <p class="lead">
+                        <a class="btn btn-secondary btn-lg btn-block" href="{% url 'upload' %}">Get uploading!</a>
+                    </p>
+                </div>
+            </div>
+        {% endif %}
+        {% if images %}
+            <div class="jumbotron text-center">
+                <h1 class="fw-light text-center text-lg-start mt-4 mb-0">Django Gallery</h1><br>
+                <a class="btn btn-secondary btn-lg btn-block" href="{% url 'upload' %}">UPLOAD IMAGE</a><br>
 
+                    <div id="carouselExampleControls" class="carousel slide " data-ride="carousel">
+                        <div class="carousel-inner ">
+                            {% for image in images %}
+                                <div class="carousel-item {% if forloop.counter == 1 %}active{% endif %}">
+                                    <div class="d-flex justify-content-center">
+                                        <img class="d-block " srcset="{{image.img_s.url}} 320w, {{image.img_m.url}} 640w, {{image.img_l.url}} 1024w"
+                                        sizes=" (min-width: 1400px) 1024px,
+                                        (max-width: 900px) 320px, 640px, "
+                                        src ="{{image.img_s.url}}" alt="Image slide">
+                                    </div>
+                                </div>
 
+                                <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+                                <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            {% endfor %}    
+                        </div>
+                    </div><br>
+                    <button type="button" class="btn btn-secondary" id="toggler">Toggle slideshow</button>
+                
 
-{% else %}
-    <a href="{% url 'login' %}">Log in</a> 
-    <br>or<br> 
-    <a href="{% url 'signup' %}">Sign up for an account</a>
+                <hr class="mt-2 mb-5">
+                <div id="sortable" class="row text-center text-lg-start">
+                    {% for image in images %}
+                        <div data-id="{{ image.id }}" class="col-lg-3 col-md-4 col-6" >
+                            <a href="{% url 'show_image' image.id %}" class="d-block mb-4 h-100">
+                                <img class="img-fluid img-thumbnail" src="{{ image.img_thumb.url}}" alt="">
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+                <p class="font-weight-light">Hint: you can change the ordering of the images by dragging them around. </p>
+            </div>       
+        {% endif %}
+    {%endblock%}
 {% endif %}
 
-{%endblock%}
+
 </html>
